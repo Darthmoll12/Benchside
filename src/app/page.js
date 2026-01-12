@@ -8,15 +8,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
-    Chemical_Name: '',
-    CAS_Number: '',
-    Amount: '',
-    Unit: '',
-    Location: '',
-    Expiration_date: '',
-    Manufacturer_Information: '',
-    Lot_Number: '',
-    Notes: ''
+    chemical_name: '',
+    cas_number: '',
+    amount: '',
+    unit: '',
+    location: '',
+    expiration_date: '',
+    manufacturer_information: '',
+    lot_number: '',
+    notes: ''
   })
 
   useEffect(() => {
@@ -39,6 +39,34 @@ export default function Home() {
     }
   }
 
+  async function deleteChemical(chemicalId) {
+    try {
+
+      if (window.confirm('Are you sure you want to delete this chemical?')) {
+
+      const { error } = await supabase
+      .from('chemical')
+      .delete()
+      .eq('id', chemicalId)
+
+      if (error) {
+        console.error('Full error object:', error)
+        console.error('Error message:', error.message)
+        console.error('Error details:', error.details)
+        console.error('Error hint:', error.hint)
+        throw error
+      } else {
+        fetchChemicals()
+      }
+      }
+
+    } catch (error) {
+    console.error('Error deleting chemical:', error)
+    alert('Error deleting chemical. Check console for details.')
+    }
+
+  }
+
   async function addChemical(e) {
     e.preventDefault()
   
@@ -47,15 +75,15 @@ export default function Home() {
     try {
       const dataToInsert = {
         user_id: null,
-        Chemical_Name: formData.Chemical_Name,
-        CAS_Number: formData.CAS_Number,
-        Amount: parseInt(formData.Amount) || null,
-        Unit: formData.Unit,
-        Location: formData.Location,
-        Expiration_date: formData.Expiration_date || null,
-        Manufacturer_Information: formData.Manufacturer_Information,
-        Lot_Number: formData.Lot_Number,
-        Notes: formData.Notes
+        chemical_name: formData.chemical_name,
+        cas_number: formData.cas_number,
+        amount: parseInt(formData.amount) || null,
+        unit: formData.unit,
+        location: formData.location,
+        expiration_date: formData.expiration_date || null,
+        manufacturer_information: formData.manufacturer_information,
+        lot_number: formData.lot_number,
+        notes: formData.notes
       }
     
       console.log('Data being inserted:', dataToInsert)
@@ -79,15 +107,15 @@ export default function Home() {
     
       // Clear form and hide it
       setFormData({
-        Chemical_Name: '',
-        CAS_Number: '',
-        Amount: '',
-        Unit: '',
-        Location: '',
-        Expiration_date: '',
-        Manufacturer_Information: '',
-        Lot_Number: '',
-        Notes: ''
+        chemical_name: '',
+        cas_number: '',
+        amount: '',
+        unit: '',
+        location: '',
+        expiration_date: '',
+        manufacturer_information: '',
+        lot_number: '',
+        notes: ''
       })
       setShowForm(false)
     
@@ -129,7 +157,7 @@ export default function Home() {
             type="text"
             name="chemical_name"
             placeholder="Chemical Name *"
-            value={formData.Chemical_name}
+            value={formData.chemical_name}
             onChange={handleInputChange}
             required
             className="border p-2 rounded"
@@ -138,7 +166,7 @@ export default function Home() {
             type="text"
             name="cas_number"
             placeholder="CAS Number"
-            value={formData.CAS_Number}
+            value={formData.cas_number}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
@@ -146,7 +174,7 @@ export default function Home() {
             type="number"
             name="amount"
             placeholder="Amount"
-            value={formData.Amount}
+            value={formData.amount}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
@@ -154,7 +182,7 @@ export default function Home() {
             type="text"
             name="unit"
             placeholder="Unit (g, mL, etc)"
-            value={formData.Unit}
+            value={formData.unit}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
@@ -162,7 +190,7 @@ export default function Home() {
             type="text"
             name="location"
             placeholder="Location *"
-            value={formData.Location}
+            value={formData.location}
             onChange={handleInputChange}
             required
             className="border p-2 rounded"
@@ -171,7 +199,7 @@ export default function Home() {
             type="date"
             name="expiration_date"
             placeholder="Expiration Date"
-            value={formData.Expiration_date}
+            value={formData.expiration_date}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
@@ -179,7 +207,7 @@ export default function Home() {
             type="text"
             name="manufacturer_information"
             placeholder="Manufacturer"
-            value={formData.Manufacturer_Information}
+            value={formData.manufacturer_information}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
@@ -187,14 +215,14 @@ export default function Home() {
             type="text"
             name="lot_number"
             placeholder="Lot Number"
-            value={formData.Lot_number}
+            value={formData.lot_number}
             onChange={handleInputChange}
             className="border p-2 rounded"
           />
           <textarea
             name="notes"
             placeholder="Notes"
-            value={formData.Notes}
+            value={formData.notes}
             onChange={handleInputChange}
             className="border p-2 rounded col-span-2"
             rows="3"
@@ -223,6 +251,7 @@ export default function Home() {
             <p>Manufacturer: {chemical.manufacturer_information}</p>
             <p>Lot Number: {chemical.lot_number}</p>
             {chemical.notes && <p className="text-sm italic mt-2">{chemical.notes}</p>}
+            <button onClick={() => deleteChemical(chemical.id)}> Delete </button>
           </div>
         ))}
       </div>
