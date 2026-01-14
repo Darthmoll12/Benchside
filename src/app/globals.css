@@ -1,4 +1,6 @@
+@import 'antd/dist/reset.css';
 @import "tailwindcss";
+
 
 :root {
   --background: #ffffff;
@@ -6,6 +8,8 @@
 }
 
 @theme inline {
+  --color-brand-purple: #ae77b6;
+  --color-brand-blue: #6d7ec2;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);

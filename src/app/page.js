@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Button, Card, Modal} from 'antd'
 
 export default function Home() {
   const [chemicals, setChemicals] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingID, setEditingID] = useState(null)
+  const [expandedID, setExpandedID] = useState(null)
   const [formData, setFormData] = useState({
     chemical_name: '',
     cas_number: '',
@@ -127,6 +130,75 @@ export default function Home() {
     }
   }
 
+  function startEdit(chemical) {
+  setEditingID(chemical.id)
+  setFormData({
+    chemical_name: chemical.chemical_name || '',
+    cas_number: chemical.cas_number || '',
+    amount: chemical.amount || '',
+    unit: chemical.unit || '',
+    location: chemical.location || '',
+    expiration_date: chemical.expiration_date || '',
+    manufacturer_information: chemical.manufacturer_information || '',
+    lot_number: chemical.lot_number || '',
+    notes: chemical.notes || ''
+  })
+
+  setShowForm(true)
+
+}
+
+
+async function editChemicals(e) {
+  e.preventDefault()
+
+  try {
+    const { error } = await supabase
+      .from('chemical')
+      .update({
+        chemical_name: formData.chemical_name,
+        cas_number: formData.cas_number,
+        amount: formData.amount,
+        unit: formData.unit,
+        location: formData.location,
+        expiration_date: formData.expiration_date,
+        manufacturer_information: formData.manufacturer_information,
+        lot_number: formData.lot_number,
+        notes: formData.notes
+      })
+      .eq('id', editingID)
+    
+    if (error) {
+        console.error('Full error object:', error)
+        console.error('Error message:', error.message)
+        console.error('Error details:', error.details)
+        console.error('Error hint:', error.hint)
+        throw error
+      }
+
+    setFormData({
+      chemical_name: '',
+      cas_number: '',
+      amount: '',
+      unit: '',
+      location: '',
+      expiration_date: '',
+      manufacturer_information: '',
+      lot_number: '',
+      notes: ''
+    })
+
+    setEditingID(null)
+    setShowForm(false)
+    fetchChemicals()
+
+    } catch (error) {
+      console.error('Error updating chemical:', error)
+      alert('Error updating chemical. Check console for details.')
+    }
+  }
+
+
   function handleInputChange(e) {
     setFormData({
       ...formData,
@@ -142,16 +214,30 @@ export default function Home() {
   <div className="p-8">
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-3xl font-bold">Chemical Inventory</h1>
-      <button 
-        onClick={() => setShowForm(!showForm)}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      <Button 
+        onClick={() => {
+          setShowForm(!showForm)
+          setEditingID(null)
+          setFormData({
+            chemical_name: '',
+            cas_number: '',
+            amount: '',
+            unit: '',
+            location: '',
+            expiration_date: '',
+            manufacturer_information: '',
+            lot_number: '',
+            notes: ''
+          })
+        }}
+        type='primary'
       >
-        {showForm ? 'Cancel' : 'Add Chemical'}
-      </button>
+        {editingID ? 'Cancel Edit' : (showForm ? 'Cancel' : 'Add Chemical')}
+      </Button>
     </div>
     
     {showForm && (
-      <form onSubmit={addChemical} className="bg-black-50 p-6 rounded mb-6">
+      <form onSubmit={editingID ? editChemicals : addChemical} className="bg-black-50 p-6 rounded mb-6">
         <div className="grid grid-cols-2 gap-4">
           <input
             type="text"
@@ -228,34 +314,58 @@ export default function Home() {
             rows="3"
           />
         </div>
-        <button 
-          type="submit"
-          className="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+        <Button
+          type="primary"
+          style={{backgroundColor: '#04AA6D', }}
+          htmlType="submit"
         >
           Save Chemical
-        </button>
+        </Button>
       </form>
     )}
     
     {chemicals.length === 0 ? (
       <p>No chemicals yet. Add some using the button above!</p>
     ) : (
-      <div className="space-y-4">
-        {chemicals.map((chemical) => (
-          <div key={chemical.id} className="border p-4 rounded">
-            <h2 className="text-xl font-semibold">{chemical.chemical_name}</h2>
-            <p className="text-gray-600">CAS: {chemical.cas_number}</p>
-            <p>Amount: {chemical.amount} {chemical.unit}</p>
-            <p>Location: {chemical.location}</p>
-            <p>Expires: {chemical.expiration_date}</p>
-            <p>Manufacturer: {chemical.manufacturer_information}</p>
-            <p>Lot Number: {chemical.lot_number}</p>
-            {chemical.notes && <p className="text-sm italic mt-2">{chemical.notes}</p>}
-            <button onClick={() => deleteChemical(chemical.id)}> Delete </button>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {chemicals.map((chemical) => {
+
+          const isExpanded = expandedID === chemical.id
+        
+          return (
+            <div
+              key={chemical.id} 
+              onClick={() => setExpandedID(isExpanded ? null : chemical.id)} 
+              className="border p-4 rounded"
+            >
+
+              <h2 className="text-xl font-semibold">{chemical.chemical_name}</h2>
+
+              {isExpanded && (
+                <>
+                  <p className="text-gray-600">CAS: {chemical.cas_number}</p>
+                  <p>Amount: {chemical.amount} {chemical.unit}</p>
+                  <p>Location: {chemical.location}</p>
+                  <p>Expires: {chemical.expiration_date}</p>
+                  <p>Manufacturer: {chemical.manufacturer_information}</p>
+                  <p>Lot Number: {chemical.lot_number}</p>
+                  {chemical.notes && <p className="text-sm italic mt-2">{chemical.notes}</p>}
+                  <button onClick={() => deleteChemical(chemical.id)}> 
+                    Delete 
+                  </button>
+                  <Button 
+                    onClick={() => startEdit(chemical)}
+                    type="primary"
+                  >
+                    Edit
+                  </Button>
+                </>
+              )}
+            </div>
+          )})}
       </div>
     )}
   </div>
-)
-}
+      
+
+)}
