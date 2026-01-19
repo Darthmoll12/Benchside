@@ -1,9 +1,10 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { ConfigProvider} from "antd"
+import { ConfigProvider } from "antd";
 import React from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import "./globals.css";
+import Header from '../components/Header';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,8 +24,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <AntdRegistry> {/* Wrap registry around the theme provider */}
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <AntdRegistry>
           <ConfigProvider
             theme={{
               cssVar: true,
@@ -34,10 +35,16 @@ export default function RootLayout({ children }) {
               },
             }}
           >
-            {children}
+            {/* 2. Place Header here so it appears on all pages */}
+            <Header /> 
+            
+            {/* 3. The main content of each page renders here */}
+            <main>{children}</main> 
+            
           </ConfigProvider>
         </AntdRegistry>
       </body>
     </html>
-  )
+  );
 }
+

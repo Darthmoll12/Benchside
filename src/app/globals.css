@@ -10,6 +10,7 @@
 @theme inline {
   --color-brand-purple: #ae77b6;
   --color-brand-blue: #6d7ec2;
+  --color-bg-light: #f5f0f7;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);

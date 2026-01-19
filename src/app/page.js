@@ -2,25 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Button, Card, Modal} from 'antd'
+import { Button, Card, Modal, Form, Input, InputNumber, DatePicker} from 'antd'
+import dayjs from 'dayjs'
+const  { TextArea } = Input
 
 export default function Home() {
   const [chemicals, setChemicals] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingID, setEditingID] = useState(null)
-  const [expandedID, setExpandedID] = useState(null)
-  const [formData, setFormData] = useState({
-    chemical_name: '',
-    cas_number: '',
-    amount: '',
-    unit: '',
-    location: '',
-    expiration_date: '',
-    manufacturer_information: '',
-    lot_number: '',
-    notes: ''
-  })
+  const [modalChemical, setModalChemical] = useState(null)
+  const [form] = Form.useForm()
+
 
   useEffect(() => {
     fetchChemicals()
@@ -70,31 +63,23 @@ export default function Home() {
 
   }
 
-  async function addChemical(e) {
-    e.preventDefault()
-  
-    console.log('Form data being submitted:', formData)
+  async function addChemical(values) {
   
     try {
-      const dataToInsert = {
-        user_id: null,
-        chemical_name: formData.chemical_name,
-        cas_number: formData.cas_number,
-        amount: parseInt(formData.amount) || null,
-        unit: formData.unit,
-        location: formData.location,
-        expiration_date: formData.expiration_date || null,
-        manufacturer_information: formData.manufacturer_information,
-        lot_number: formData.lot_number,
-        notes: formData.notes
-      }
-    
-      console.log('Data being inserted:', dataToInsert)
-    
       const { data, error } = await supabase
         .from('chemical')
-        .insert([dataToInsert])
-        .select()
+        .insert([{
+          user_id: null,
+          chemical_name: values.chemical_name,
+          cas_number: values.cas_number,
+          amount: values.amount,
+          unit: values.unit,
+          location: values.location,
+          expiration_date: values.expiration_date,
+          manufacturer_information: values.manufacturer_information,
+          lot_number: values.lot_number,
+          notes: values.notes
+        }])
       
       console.log('Supabase response:', { data, error })
       
@@ -109,21 +94,11 @@ export default function Home() {
       console.log('Successfully inserted:', data)
     
       // Clear form and hide it
-      setFormData({
-        chemical_name: '',
-        cas_number: '',
-        amount: '',
-        unit: '',
-        location: '',
-        expiration_date: '',
-        manufacturer_information: '',
-        lot_number: '',
-        notes: ''
-      })
+      form.resetFields()
       setShowForm(false)
-    
-      // Refresh the list
+      //Refresh the list
       fetchChemicals()
+    
     } catch (error) {
       console.error('Error adding chemical:', error)
       alert('Error adding chemical. Check console for details.')
@@ -131,94 +106,79 @@ export default function Home() {
   }
 
   function startEdit(chemical) {
-  setEditingID(chemical.id)
-  setFormData({
-    chemical_name: chemical.chemical_name || '',
-    cas_number: chemical.cas_number || '',
-    amount: chemical.amount || '',
-    unit: chemical.unit || '',
-    location: chemical.location || '',
-    expiration_date: chemical.expiration_date || '',
-    manufacturer_information: chemical.manufacturer_information || '',
-    lot_number: chemical.lot_number || '',
-    notes: chemical.notes || ''
-  })
+    setEditingID(chemical.id)
+    form.setFieldsValue({
+      chemical_name: chemical.chemical_name || '',
+      cas_number: chemical.cas_number || '',
+      amount: chemical.amount || '',
+      unit: chemical.unit || '',
+      location: chemical.location || '',
+      expiration_date: chemical.expiration_date ? dayjs(chemical.expiration_date) : null,
+      manufacturer_information: chemical.manufacturer_information || '',
+      lot_number: chemical.lot_number || '',
+      notes: chemical.notes || ''
+    })
 
-  setShowForm(true)
+    setShowForm(true)
 
-}
+  }
 
 
-async function editChemicals(e) {
-  e.preventDefault()
+  async function editChemicals(values) {
 
-  try {
-    const { error } = await supabase
-      .from('chemical')
-      .update({
-        chemical_name: formData.chemical_name,
-        cas_number: formData.cas_number,
-        amount: formData.amount,
-        unit: formData.unit,
-        location: formData.location,
-        expiration_date: formData.expiration_date,
-        manufacturer_information: formData.manufacturer_information,
-        lot_number: formData.lot_number,
-        notes: formData.notes
-      })
-      .eq('id', editingID)
-    
-    if (error) {
-        console.error('Full error object:', error)
-        console.error('Error message:', error.message)
-        console.error('Error details:', error.details)
-        console.error('Error hint:', error.hint)
-        throw error
+    try {
+      const { error } = await supabase
+        .from('chemical')
+        .update({
+          chemical_name: values.chemical_name,
+          cas_number: values.cas_number,
+          amount: values.amount,
+          unit: values.unit,
+          location: values.location,
+          expiration_date: values.expiration_date ? values.expiration_date.format('YYYY-MM-DD') : null,
+          manufacturer_information: values.manufacturer_information,
+          lot_number: values.lot_number,
+          notes: values.notes
+        })
+        .eq('id', editingID)
+      
+      if (error) {
+          console.error('Full error object:', error)
+          console.error('Error message:', error.message)
+          console.error('Error details:', error.details)
+          console.error('Error hint:', error.hint)
+          throw error
+        }
+
+
+      setEditingID(null)
+      setShowForm(false)
+      fetchChemicals()
+
+      } catch (error) {
+        console.error('Error updating chemical:', error)
+        alert('Error updating chemical. Check console for details.')
       }
-
-    setFormData({
-      chemical_name: '',
-      cas_number: '',
-      amount: '',
-      unit: '',
-      location: '',
-      expiration_date: '',
-      manufacturer_information: '',
-      lot_number: '',
-      notes: ''
-    })
-
-    setEditingID(null)
-    setShowForm(false)
-    fetchChemicals()
-
-    } catch (error) {
-      console.error('Error updating chemical:', error)
-      alert('Error updating chemical. Check console for details.')
     }
-  }
 
-
-  function handleInputChange(e) {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
 
   if (loading) {
     return <div className="p-8">Loading...</div>
   }
 
   return (
-  <div className="p-8">
+  <div 
+    className="p-8 min-h-screen"
+    style={{
+      background: 'linear-gradient(135deg, #d4b3db 0%, #b8c2df 100%)'
+    }}>
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-3xl font-bold">Chemical Inventory</h1>
       <Button 
         onClick={() => {
           setShowForm(!showForm)
           setEditingID(null)
-          setFormData({
+          form.setFieldsValue({
             chemical_name: '',
             cas_number: '',
             amount: '',
@@ -237,135 +197,151 @@ async function editChemicals(e) {
     </div>
     
     {showForm && (
-      <form onSubmit={editingID ? editChemicals : addChemical} className="bg-black-50 p-6 rounded mb-6">
+      <Form 
+        form = {form}
+        onFinish = {editingID ? editChemicals : addChemical}
+        layout="vertical"
+        className="bg-white p-6 rounded mb-6 shadow-md"
+      >
         <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
+          <Form.Item 
+            label="Chemical Name" 
             name="chemical_name"
-            placeholder="Chemical Name *"
-            value={formData.chemical_name}
-            onChange={handleInputChange}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
+            rules={[{ required: true, message: 'Please enter a chemical name' }]}
+          >
+            <Input placeholder="Enter a name for your chemical" />
+          </Form.Item>
+
+          <Form.Item 
+            label="CAS Number" 
             name="cas_number"
-            placeholder="CAS Number"
-            value={formData.cas_number}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <input
-            type="number"
+          >
+            <Input placeholder="Enter your chemical's CAS number if applicable" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Amount" 
             name="amount"
-            placeholder="Amount"
-            value={formData.amount}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <InputNumber placeholder="Select an amount" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Unit" 
             name="unit"
-            placeholder="Unit (g, mL, etc)"
-            value={formData.unit}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <Input placeholder="Enter a unit (g, mL, etc)" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Location" 
             name="location"
-            placeholder="Location *"
-            value={formData.location}
-            onChange={handleInputChange}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="date"
+            rules={[{ required: true, message: 'Please enter a location' }]}
+          >
+            <Input placeholder="Enter chemical's storage location" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Expiration Date" 
             name="expiration_date"
-            placeholder="Expiration Date"
-            value={formData.expiration_date}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <DatePicker/>
+          </Form.Item>
+
+          <Form.Item 
+            label="Manufacturer" 
             name="manufacturer_information"
-            placeholder="Manufacturer"
-            value={formData.manufacturer_information}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <Input placeholder="Enter your chemical's manufacturer" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Lot Number" 
             name="lot_number"
-            placeholder="Lot Number"
-            value={formData.lot_number}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
-          />
-          <textarea
+          >
+            <Input placeholder="Enter lot number if applicable" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Notes" 
             name="notes"
-            placeholder="Notes"
-            value={formData.notes}
-            onChange={handleInputChange}
-            className="border p-2 rounded col-span-2"
-            rows="3"
-          />
+            className="col-span-2"
+          >
+            <TextArea rows={3} placeholder="Enter any additional notes here" />
+          </Form.Item>
         </div>
-        <Button
-          type="primary"
-          style={{backgroundColor: '#04AA6D', }}
-          htmlType="submit"
-        >
-          Save Chemical
-        </Button>
-      </form>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+          >
+            {editingID ? 'Update Chemical' : 'Save Chemical'}
+          </Button>
+        </Form.Item>
+      </Form>
     )}
     
     {chemicals.length === 0 ? (
       <p>No chemicals yet. Add some using the button above!</p>
     ) : (
+      <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {chemicals.map((chemical) => {
-
-          const isExpanded = expandedID === chemical.id
-        
           return (
-            <div
-              key={chemical.id} 
-              onClick={() => setExpandedID(isExpanded ? null : chemical.id)} 
-              className="border p-4 rounded"
-            >
-
-              <h2 className="text-xl font-semibold">{chemical.chemical_name}</h2>
-
-              {isExpanded && (
-                <>
-                  <p className="text-gray-600">CAS: {chemical.cas_number}</p>
-                  <p>Amount: {chemical.amount} {chemical.unit}</p>
-                  <p>Location: {chemical.location}</p>
-                  <p>Expires: {chemical.expiration_date}</p>
-                  <p>Manufacturer: {chemical.manufacturer_information}</p>
-                  <p>Lot Number: {chemical.lot_number}</p>
-                  {chemical.notes && <p className="text-sm italic mt-2">{chemical.notes}</p>}
-                  <button onClick={() => deleteChemical(chemical.id)}> 
-                    Delete 
-                  </button>
-                  <Button 
-                    onClick={() => startEdit(chemical)}
+            <Card
+              key={chemical.id}
+              title={chemical.chemical_name}
+              size="small"
+              onClick={() => setModalChemical(chemical)} 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              extra={
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Button
                     type="primary"
+                    size="small"
+                    onClick={() => startEdit(chemical)}
                   >
                     Edit
                   </Button>
-                </>
-              )}
-            </div>
-          )})}
+                  
+                  <Button
+                    danger
+                    size="small"
+                    onClick={() => deleteChemical(chemical.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              }
+            >
+              <p className="text-gray-500">Location: {chemical.location}</p>
+            </Card>
+          )
+        })}
       </div>
-    )}
-  </div>
-      
 
+      <Modal
+      title={modalChemical?.chemical_name}
+      open={modalChemical !== null}
+      onCancel={() => setModalChemical(null)}
+      footer={null}
+      width={600}
+      >
+        {modalChemical && (
+          <div>
+            <h2>{modalChemical.chemical_name}</h2>
+            <p className="text-gray-600">CAS: {modalChemical.cas_number}</p>
+            <p>Amount: {modalChemical.amount} {modalChemical.unit}</p>
+            <p>Location: {modalChemical.location}</p>
+            <p>Expires: {modalChemical.expiration_date}</p>
+            <p>Manufacturer: {modalChemical.manufacturer_information}</p>
+            <p>Lot Number: {modalChemical.lot_number}</p>
+            {modalChemical.notes && <p className="text-sm italic mt-2">{modalChemical.notes}</p>}
+          </div>
+        )}
+      </Modal>
+    </>
+  )}
+  </div>
 )}
