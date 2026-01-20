@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Button, Card, Modal, Form, Input, InputNumber, DatePicker} from 'antd'
+import { Button, Card, Modal, Form, Input, InputNumber, DatePicker, Select} from 'antd'
 import dayjs from 'dayjs'
+import { ExperimentOutlined } from '@ant-design/icons'
 const  { TextArea } = Input
 
 export default function Home() {
@@ -201,20 +202,30 @@ export default function Home() {
         form = {form}
         onFinish = {editingID ? editChemicals : addChemical}
         layout="vertical"
-        className="bg-white p-6 rounded mb-6 shadow-md"
+        className="p-8 rounded-xl"
+        style={{
+          backgroundColor: '#ffffff',
+          boxShadow: '0 10px 40px rgba(109, 126, 194, 0.2), 0 0 0 1px rgba(174, 119, 182, 0.1)',
+        }}
       >
         <div className="grid grid-cols-2 gap-4">
           <Form.Item 
             label="Chemical Name" 
             name="chemical_name"
+            hasFeedback
             rules={[{ required: true, message: 'Please enter a chemical name' }]}
           >
-            <Input placeholder="Enter a name for your chemical" />
+            <Input 
+              placeholder="e.g., Sodium Chloride"
+              prefix={<ExperimentOutlined />}
+            />
           </Form.Item>
 
           <Form.Item 
             label="CAS Number" 
             name="cas_number"
+            tooltip="Chemical Abstracts Service registry number (e.g., 64-17-5)"
+            hasFeedback
           >
             <Input placeholder="Enter your chemical's CAS number if applicable" />
           </Form.Item>
@@ -222,28 +233,46 @@ export default function Home() {
           <Form.Item 
             label="Amount" 
             name="amount"
+            tooltip="Numerical quantity of chemical (without units)"
+            hasFeedback
           >
-            <InputNumber placeholder="Select an amount" />
+            <InputNumber 
+              placeholder="Select a quantity"
+              min={0}
+              step={0.1}
+              className="w-full" 
+          />
           </Form.Item>
 
           <Form.Item 
             label="Unit" 
             name="unit"
+            hasFeedback
           >
-            <Input placeholder="Enter a unit (g, mL, etc)" />
+            <Select placeholder="Select a unit (g, mL, etc)">
+              <Select.Option value="g">g (grams)</Select.Option>
+              <Select.Option value="mg">mg (milligrams)</Select.Option>
+              <Select.Option value="mL">mL (milliliters)</Select.Option>
+              <Select.Option value="L">L (liters)</Select.Option>
+              <Select.Option value="mol">mol (moles)</Select.Option>
+            </Select>
           </Form.Item>
 
           <Form.Item 
             label="Location" 
             name="location"
             rules={[{ required: true, message: 'Please enter a location' }]}
+            tooltip="Physical storage location (cabinet, shelf, room number)"
+            hasFeedback
           >
-            <Input placeholder="Enter chemical's storage location" />
+            <Input placeholder="Enter chemical's location" />
           </Form.Item>
 
           <Form.Item 
             label="Expiration Date" 
             name="expiration_date"
+            tooltip="Date when the chemical expires or should be disposed of"
+            hasFeedback
           >
             <DatePicker/>
           </Form.Item>
@@ -251,6 +280,8 @@ export default function Home() {
           <Form.Item 
             label="Manufacturer" 
             name="manufacturer_information"
+            tooltip="Company that produced or supplied this chemical"
+            hasFeedback
           >
             <Input placeholder="Enter your chemical's manufacturer" />
           </Form.Item>
@@ -258,6 +289,8 @@ export default function Home() {
           <Form.Item 
             label="Lot Number" 
             name="lot_number"
+            tooltip="Batch or lot number from the manufacturer for quality tracking"
+            hasFeedback
           >
             <Input placeholder="Enter lot number if applicable" />
           </Form.Item>
@@ -266,8 +299,10 @@ export default function Home() {
             label="Notes" 
             name="notes"
             className="col-span-2"
+            tooltip="Additional information such as hazards, storage conditions, or special handling requirements"
+            hasFeedback
           >
-            <TextArea rows={3} placeholder="Enter any additional notes here" />
+            <TextArea rows={3} placeholder="Enter any additional notes" />
           </Form.Item>
         </div>
 
