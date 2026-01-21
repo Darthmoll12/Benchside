@@ -31,7 +31,6 @@ export default function RootLayout({ children }) {
               cssVar: true,
               token: {
                 colorPrimary: '#6d7ec2',
-                colorSuccess: '#04AA6D',
               },
             }}
           >

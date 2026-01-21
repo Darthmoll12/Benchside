@@ -196,16 +196,19 @@ export default function Home() {
         {editingID ? 'Cancel Edit' : (showForm ? 'Cancel' : 'Add Chemical')}
       </Button>
     </div>
-    
+
+
     {showForm && (
       <Form 
         form = {form}
         onFinish = {editingID ? editChemicals : addChemical}
-        layout="vertical"
-        className="p-8 rounded-xl"
+        layout="vertical"    
         style={{
           backgroundColor: '#ffffff',
-          boxShadow: '0 10px 40px rgba(109, 126, 194, 0.2), 0 0 0 1px rgba(174, 119, 182, 0.1)',
+          boxShadow: '0 10px 40px rgba(109, 126, 194, 0.2)',
+          padding: '40px',
+          borderRadius: '12px',
+          marginBottom: '48px'
         }}
       >
         <div className="grid grid-cols-2 gap-4">
@@ -217,6 +220,7 @@ export default function Home() {
           >
             <Input 
               placeholder="e.g., Sodium Chloride"
+              style={{ borderColor: '#6d7ec2' }}
               prefix={<ExperimentOutlined />}
             />
           </Form.Item>
@@ -227,7 +231,10 @@ export default function Home() {
             tooltip="Chemical Abstracts Service registry number (e.g., 64-17-5)"
             hasFeedback
           >
-            <Input placeholder="Enter your chemical's CAS number if applicable" />
+            <Input 
+              placeholder="Enter your chemical's CAS number if applicable"
+              style={{ borderColor: '#6d7ec2' }}
+            />
           </Form.Item>
 
           <Form.Item 
@@ -237,10 +244,13 @@ export default function Home() {
             hasFeedback
           >
             <InputNumber 
-              placeholder="Select a quantity"
-              min={0}
+              placeholder="Enter a quantity"
+              min={0.0}
               step={0.1}
-              className="w-full" 
+              style={{ 
+                width: '100%',
+                borderColor: '#6d7ec2'
+              }}
           />
           </Form.Item>
 
@@ -249,7 +259,10 @@ export default function Home() {
             name="unit"
             hasFeedback
           >
-            <Select placeholder="Select a unit (g, mL, etc)">
+            <Select 
+              placeholder="Select a unit (g, mL, etc)"
+              style={{ borderColor: '#6d7ec2' }}
+            >
               <Select.Option value="g">g (grams)</Select.Option>
               <Select.Option value="mg">mg (milligrams)</Select.Option>
               <Select.Option value="mL">mL (milliliters)</Select.Option>
@@ -265,7 +278,10 @@ export default function Home() {
             tooltip="Physical storage location (cabinet, shelf, room number)"
             hasFeedback
           >
-            <Input placeholder="Enter chemical's location" />
+            <Input 
+              placeholder="Enter chemical's location"
+              style={{ borderColor: '#6d7ec2' }}
+            />
           </Form.Item>
 
           <Form.Item 
@@ -274,7 +290,12 @@ export default function Home() {
             tooltip="Date when the chemical expires or should be disposed of"
             hasFeedback
           >
-            <DatePicker/>
+            <DatePicker
+              style={{ 
+                width: '100%',
+                borderColor: '#6d7ec2'
+              }}
+            />
           </Form.Item>
 
           <Form.Item 
@@ -283,7 +304,10 @@ export default function Home() {
             tooltip="Company that produced or supplied this chemical"
             hasFeedback
           >
-            <Input placeholder="Enter your chemical's manufacturer" />
+            <Input 
+              placeholder="Enter your chemical's manufacturer"
+              style={{ borderColor: '#6d7ec2' }}
+            />
           </Form.Item>
 
           <Form.Item 
@@ -292,7 +316,10 @@ export default function Home() {
             tooltip="Batch or lot number from the manufacturer for quality tracking"
             hasFeedback
           >
-            <Input placeholder="Enter lot number if applicable" />
+            <Input 
+              placeholder="Enter lot number if applicable"
+              style={{ borderColor: '#6d7ec2' }} 
+            />
           </Form.Item>
 
           <Form.Item 
@@ -302,7 +329,11 @@ export default function Home() {
             tooltip="Additional information such as hazards, storage conditions, or special handling requirements"
             hasFeedback
           >
-            <TextArea rows={3} placeholder="Enter any additional notes" />
+            <TextArea 
+              rows={3}
+              placeholder="Enter any additional notes"
+              style={{ borderColor: '#6d7ec2' }}
+            />
           </Form.Item>
         </div>
 
@@ -310,6 +341,7 @@ export default function Home() {
           <Button
             type="primary"
             htmlType="submit"
+            className="w-full sm:w-auto"
           >
             {editingID ? 'Update Chemical' : 'Save Chemical'}
           </Button>
