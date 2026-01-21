@@ -73,10 +73,10 @@ export default function Home() {
           user_id: null,
           chemical_name: values.chemical_name,
           cas_number: values.cas_number,
-          amount: values.amount,
+          amount: values.amount || null,
           unit: values.unit,
           location: values.location,
-          expiration_date: values.expiration_date,
+          expiration_date: values.expiration_date || null,
           manufacturer_information: values.manufacturer_information,
           lot_number: values.lot_number,
           notes: values.notes
@@ -133,7 +133,7 @@ export default function Home() {
         .update({
           chemical_name: values.chemical_name,
           cas_number: values.cas_number,
-          amount: values.amount,
+          amount: values.amount || null,
           unit: values.unit,
           location: values.location,
           expiration_date: values.expiration_date ? values.expiration_date.format('YYYY-MM-DD') : null,
@@ -241,6 +241,7 @@ export default function Home() {
             label="Amount" 
             name="amount"
             tooltip="Numerical quantity of chemical (without units)"
+            rules={[{ required: true, message : "Please enter an amount"}]}
             hasFeedback
           >
             <InputNumber 
@@ -257,6 +258,7 @@ export default function Home() {
           <Form.Item 
             label="Unit" 
             name="unit"
+            rules={[{ required: true, message : "Please enter an unit"}]}
             hasFeedback
           >
             <Select 
