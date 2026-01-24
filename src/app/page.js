@@ -1,10 +1,11 @@
 'use client'
 
+import { Button, Card, Modal, Form, Input, InputNumber, DatePicker, Select, Table, Segmented} from 'antd'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Button, Card, Modal, Form, Input, InputNumber, DatePicker, Select} from 'antd'
-import dayjs from 'dayjs'
 import { ExperimentOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 const  { TextArea } = Input
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
   const [editingID, setEditingID] = useState(null)
   const [modalChemical, setModalChemical] = useState(null)
   const [form] = Form.useForm()
+  const [viewMode, setViewMode] = useState('cards')
 
 
   useEffect(() => {
@@ -162,47 +164,142 @@ export default function Home() {
       }
     }
 
+  
+  const columns = [
+    {
+      title: "Chemical Name",
+      dataIndex: "chemical_name",
+      key: "chemical_name",
+      sorter: (a, b) => a.chemical_name.localeCompare(b.chemical_name)
+    },
+    {
+      title: "CAS Number",
+      dataIndex: "cas_number",
+      key: "cas_number",
+      sorter: (a, b) => a.cas_number.localeCompare(b.cas_number)
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      sorter: (a, b) => a.amount - b.amount
+    },
+    {
+      title: "Unit",
+      dataIndex: "unit",
+      key: "unit"
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
+      sorter: (a, b) => a.location.localeCompare(b.location)
+    },
+    {
+      title: "Expiration Date",
+      dataIndex: "expiration_date",
+      key: "expiration_date",
+      sorter: (a, b) => {
+        if (!a.expiration_date) return 1  // Put nulls at the end
+        if (!b.expiration_date) return -1
+        return a.expiration_date.localeCompare(b.expiration_date)
+      }
+    },
+    {
+      title: "Manufacturer",
+      dataIndex: "manufacturer_information",
+      key: "manufacturer_information",
+      sorter: (a, b) => a.manufacturer_information.localeCompare(b.manufacturer_information)
+    },
+    {
+      title: "Lot Number",
+      dataIndex: "lot_number",
+      key: "lot_number",
+      sorter: (a, b) => a.lot_number.localeCompare(b.lot_number)
+    },
+    {
+      title: "Notes",
+      dataIndex: "notes",
+      key: "notes",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <div style={{ display: 'flex', gap: '8px' }}>
+        <Button 
+        type="primary" 
+        size="small"
+        onClick={() => startEdit(record)}
+        >
+        Edit
+        </Button>
+        <Button 
+        danger 
+        size="small"
+        onClick={() => deleteChemical(record.id)}
+        >
+        Delete
+        </Button>
+        </div>
+      )
+    }
+  ]
+
 
   if (loading) {
     return <div className="p-8">Loading...</div>
   }
 
   return (
-  <div 
-    className="p-8 min-h-screen"
-    style={{
-      background: 'linear-gradient(135deg, #d4b3db 0%, #b8c2df 100%)'
-    }}>
-    <div className="flex justify-between items-center mb-6">
-      <h1 className="text-3xl font-bold">Chemical Inventory</h1>
-      <Button 
-        onClick={() => {
-          setShowForm(!showForm)
-          setEditingID(null)
-          form.setFieldsValue({
-            chemical_name: '',
-            cas_number: '',
-            amount: '',
-            unit: '',
-            location: '',
-            expiration_date: '',
-            manufacturer_information: '',
-            lot_number: '',
-            notes: ''
-          })
-        }}
-        type='primary'
-      >
-        {editingID ? 'Cancel Edit' : (showForm ? 'Cancel' : 'Add Chemical')}
-      </Button>
-    </div>
+    <div
+      className="p-8 min-h-screen"
+      style={{
+        background: 'linear-gradient(135deg, #d4b3db 0%, #b8c2df 100%)'
+      }}>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Chemical Inventory</h1>
+
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Segmented
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              { label: 'Cards', value: 'cards', icon: <AppstoreOutlined /> },
+              { label: 'Table', value: 'table', icon: <UnorderedListOutlined /> },
+            ]}
+          />
+          
+          <Button 
+            onClick={() => {
+              setShowForm(!showForm)
+              setEditingID(null)
+              form.setFieldsValue({
+                chemical_name: '',
+                cas_number: '',
+                amount: '',
+                unit: '',
+                location: '',
+                expiration_date: '',
+                manufacturer_information: '',
+                lot_number: '',
+                notes: ''
+              })
+            }}
+            type='primary'
+          >
+            {editingID ? 'Cancel Edit' : (showForm ? 'Cancel' : 'Add Chemical')}
+          </Button>
+        </div>
+      </div>
+  
 
 
     {showForm && (
-      <Form 
-        form = {form}
-        onFinish = {editingID ? editChemicals : addChemical}
-        layout="vertical"    
+      <Form
+        form={form}
+        onFinish={editingID ? editChemicals : addChemical}
+        layout="vertical"
         style={{
           backgroundColor: '#ffffff',
           boxShadow: '0 10px 40px rgba(109, 126, 194, 0.2)',
@@ -212,56 +309,56 @@ export default function Home() {
         }}
       >
         <div className="grid grid-cols-2 gap-4">
-          <Form.Item 
-            label="Chemical Name" 
+          <Form.Item
+            label="Chemical Name"
             name="chemical_name"
             hasFeedback
             rules={[{ required: true, message: 'Please enter a chemical name' }]}
           >
-            <Input 
+            <Input
               placeholder="e.g., Sodium Chloride"
               style={{ borderColor: '#6d7ec2' }}
               prefix={<ExperimentOutlined />}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="CAS Number" 
+          <Form.Item
+            label="CAS Number"
             name="cas_number"
             tooltip="Chemical Abstracts Service registry number (e.g., 64-17-5)"
             hasFeedback
           >
-            <Input 
+            <Input
               placeholder="Enter your chemical's CAS number if applicable"
               style={{ borderColor: '#6d7ec2' }}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="Amount" 
+          <Form.Item
+            label="Amount"
             name="amount"
             tooltip="Numerical quantity of chemical (without units)"
-            rules={[{ required: true, message : "Please enter an amount"}]}
+            rules={[{ required: true, message: "Please enter an amount" }]}
             hasFeedback
           >
-            <InputNumber 
+            <InputNumber
               placeholder="Enter a quantity"
               min={0.0}
               step={0.1}
-              style={{ 
+              style={{
                 width: '100%',
                 borderColor: '#6d7ec2'
               }}
-          />
+            />
           </Form.Item>
 
-          <Form.Item 
-            label="Unit" 
+          <Form.Item
+            label="Unit"
             name="unit"
-            rules={[{ required: true, message : "Please enter an unit"}]}
+            rules={[{ required: true, message: "Please enter an unit" }]}
             hasFeedback
           >
-            <Select 
+            <Select
               placeholder="Select a unit (g, mL, etc)"
               style={{ borderColor: '#6d7ec2' }}
             >
@@ -273,65 +370,65 @@ export default function Home() {
             </Select>
           </Form.Item>
 
-          <Form.Item 
-            label="Location" 
+          <Form.Item
+            label="Location"
             name="location"
             rules={[{ required: true, message: 'Please enter a location' }]}
             tooltip="Physical storage location (cabinet, shelf, room number)"
             hasFeedback
           >
-            <Input 
-              placeholder="Enter chemical's location"
+            <Input
+              placeholder="Enter room number"
               style={{ borderColor: '#6d7ec2' }}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="Expiration Date" 
+          <Form.Item
+            label="Expiration Date"
             name="expiration_date"
             tooltip="Date when the chemical expires or should be disposed of"
             hasFeedback
           >
             <DatePicker
-              style={{ 
+              style={{
                 width: '100%',
                 borderColor: '#6d7ec2'
               }}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="Manufacturer" 
+          <Form.Item
+            label="Manufacturer"
             name="manufacturer_information"
             tooltip="Company that produced or supplied this chemical"
             hasFeedback
           >
-            <Input 
+            <Input
               placeholder="Enter your chemical's manufacturer"
               style={{ borderColor: '#6d7ec2' }}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="Lot Number" 
+          <Form.Item
+            label="Lot Number"
             name="lot_number"
             tooltip="Batch or lot number from the manufacturer for quality tracking"
             hasFeedback
           >
-            <Input 
+            <Input
               placeholder="Enter lot number if applicable"
-              style={{ borderColor: '#6d7ec2' }} 
+              style={{ borderColor: '#6d7ec2' }}
             />
           </Form.Item>
 
-          <Form.Item 
-            label="Notes" 
+          <Form.Item
+            label="Notes"
             name="notes"
             className="col-span-2"
             tooltip="Additional information such as hazards, storage conditions, or special handling requirements"
             hasFeedback
           >
-            <TextArea 
+            <TextArea
               rows={3}
               placeholder="Enter any additional notes"
               style={{ borderColor: '#6d7ec2' }}
@@ -349,68 +446,80 @@ export default function Home() {
           </Button>
         </Form.Item>
       </Form>
-    )}
+    )
+    }
     
     {chemicals.length === 0 ? (
       <p>No chemicals yet. Add some using the button above!</p>
-    ) : (
+    ) : viewMode === "cards" ? (
       <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {chemicals.map((chemical) => {
-          return (
-            <Card
-              key={chemical.id}
-              title={chemical.chemical_name}
-              size="small"
-              onClick={() => setModalChemical(chemical)} 
-              className="cursor-pointer hover:shadow-lg transition-shadow"
-              extra={
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    type="primary"
-                    size="small"
-                    onClick={() => startEdit(chemical)}
-                  >
-                    Edit
-                  </Button>
-                  
-                  <Button
-                    danger
-                    size="small"
-                    onClick={() => deleteChemical(chemical.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              }
-            >
-              <p className="text-gray-500">Location: {chemical.location}</p>
-            </Card>
-          )
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {chemicals.map((chemical) => {
+            return (
+              <Card
+                key={chemical.id}
+                title={chemical.chemical_name}
+                size="small"
+                onClick={() => setModalChemical(chemical)} 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                extra={
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => startEdit(chemical)}
+                    >
+                      Edit
+                    </Button>
+                    
+                    <Button
+                      danger
+                      size="small"
+                      onClick={() => deleteChemical(chemical.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                }
+              >
+                <p className="text-gray-500">Location: {chemical.location}</p>
+              </Card>
+            )
+          })}
+        </div>
+      </>
+    ) : (
+      <Table
+        dataSource={chemicals}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+        onRow={(record) => ({
+          onClick: () => setModalChemical(record),
+          style: { cursor: 'pointer' }
         })}
-      </div>
+      />
+    )}
 
-      <Modal
+    <Modal
       title={modalChemical?.chemical_name}
       open={modalChemical !== null}
       onCancel={() => setModalChemical(null)}
       footer={null}
       width={600}
-      >
-        {modalChemical && (
-          <div>
-            <h2>{modalChemical.chemical_name}</h2>
-            <p className="text-gray-600">CAS: {modalChemical.cas_number}</p>
-            <p>Amount: {modalChemical.amount} {modalChemical.unit}</p>
-            <p>Location: {modalChemical.location}</p>
-            <p>Expires: {modalChemical.expiration_date}</p>
-            <p>Manufacturer: {modalChemical.manufacturer_information}</p>
-            <p>Lot Number: {modalChemical.lot_number}</p>
-            {modalChemical.notes && <p className="text-sm italic mt-2">{modalChemical.notes}</p>}
-          </div>
-        )}
-      </Modal>
-    </>
-  )}
+    >
+      {modalChemical && (
+        <div>
+          <h2>{modalChemical.chemical_name}</h2>
+          <p className="text-gray-600">CAS: {modalChemical.cas_number}</p>
+          <p>Amount: {modalChemical.amount} {modalChemical.unit}</p>
+          <p>Location: {modalChemical.location}</p>
+          <p>Expires: {modalChemical.expiration_date}</p>
+          <p>Manufacturer: {modalChemical.manufacturer_information}</p>
+          <p>Lot Number: {modalChemical.lot_number}</p>
+          {modalChemical.notes && <p className="text-sm italic mt-2">{modalChemical.notes}</p>}
+        </div>
+      )}
+    </Modal>
   </div>
-)}
+  )}
