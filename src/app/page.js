@@ -92,7 +92,6 @@ export default function Home() {
           concentration: values.concentration,
           concentration_unit: values.concentration_unit,
           ghs_pictograms: values.ghs_pictograms || [],
-          signal_word: values.signal_word,
           container_size: values.container_size || null,
           unit: values.unit,
           percent_full: values.percent_full || null,
@@ -136,7 +135,6 @@ export default function Home() {
       concentration: chemical.concentration || null,
       concentration_unit: chemical.concentration_unit || '',
       ghs_pictograms: chemical.ghs_pictograms,
-      signal_word: chemical.signal_word || '',
       container_size: chemical.container_size || null,
       unit: chemical.unit || '',
       percent_full: chemical.percent_full || null,
@@ -164,7 +162,6 @@ export default function Home() {
           concentration: values.concentration,
           concentration_unit: values.concentration_unit,
           ghs_pictograms: values.ghs_pictograms || [],
-          signal_word: values.signal_word,
           container_size: values.container_size || null,
           unit: values.unit,
           percent_full: values.percent_full || null,
@@ -446,21 +443,6 @@ export default function Home() {
                 )
               }))}
             />
-          </Form.Item>
-
-          <Form.Item
-            label="Signal Word"
-            name="signal_word"
-            tooltip="Can be found as either 'Danger' or 'Warning'"
-            hasFeedback
-          >
-            <Select
-              placeholder="Seelect a signal word if applicable"
-              style={{ borderColor: '#6d7ec2' }}
-            >
-              <Select.Option value="danger">Danger</Select.Option>
-              <Select.Option value="warning">Warning</Select.Option>
-            </Select>
           </Form.Item>
 
           <Form.Item
@@ -815,32 +797,6 @@ export default function Home() {
                       </p>
                     </div>
                   )}
-
-                  {record.signal_word &&(
-                    <div style={{ 
-                      paddingTop: '16px',
-                      borderTop: '1px solid rgba(109, 126, 194, 0.2)'
-                    }}>
-                      <p style={{ 
-                        fontSize: '12px', 
-                        color: '#6d7ec2', 
-                        fontWeight: '600',
-                        marginBottom: '6px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>
-                        Signal Word
-                      </p>
-                      <p style={{ 
-                        margin: 0, 
-                        color: '#ea4310',
-                        fontWeight: 'bold',
-                        lineHeight: '1.5'
-                      }}>
-                        {record.signal_word}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             ),
@@ -951,22 +907,6 @@ export default function Home() {
                 </div>
               </div>
             )}
-        
-
-          {modalChemical.signal_word && (
-            <div>
-              <p className="text-gray-500 text-sm">Signal Word</p>
-              <p
-                className={`font-semibold uppercase tracking-wide ${
-                  modalChemical.signal_word === 'Danger'
-                    ? 'text-red-600'
-                    : 'text-yellow-600'
-                }`}
-              >
-                {modalChemical.signal_word}
-              </p>
-            </div>
-          )}
 
           {modalChemical.notes && (
             <div className="pt-3 border-t">
