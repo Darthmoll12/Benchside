@@ -18,14 +18,14 @@ export default function Home() {
   const [viewMode, setViewMode] = useState('cards')
 
   const GHS_PICTOGRAMS = [
-  { value: 'flame', label: 'Flammable', icon: 'ghs/flame.png' },
-  { value: 'corrosion', label: 'Corrosive', icon: 'ghs/corrosion.png' },
-  { value: 'skull', label: 'Acute Toxicity', icon: 'ghs/skull.png' },
-  { value: 'health', label: 'Health Hazard', icon: 'ghs/health.png' },
-  { value: 'exclamation', label: 'Irritant', icon: 'ghs/exclamation.png' },
-  { value: 'environment', label: 'Environmental Hazard', icon: 'ghs/environment.png' },
-  { value: 'gas', label: 'Gas Under Pressure', icon: 'ghs/gas.png' },
-  { value: 'oxidizer', label: 'Oxidizer', icon: 'ghs/oxidizer.png' }
+  { value: 'flame', label: 'Flammable', icon: '/ghs/flame.png' },
+  { value: 'corrosion', label: 'Corrosive', icon: '/ghs/corrosion.png' },
+  { value: 'skull', label: 'Acute Toxicity', icon: '/ghs/skull.png' },
+  { value: 'health', label: 'Health Hazard', icon: '/ghs/health.png' },
+  { value: 'exclamation', label: 'Irritant', icon: '/ghs/exclamation.png' },
+  { value: 'environment', label: 'Environmental Hazard', icon: '/ghs/environment.png' },
+  { value: 'gas', label: 'Gas Under Pressure', icon: '/ghs/gas.png' },
+  { value: 'oxidizer', label: 'Oxidizer', icon: '/ghs/oxidizer.png' }
 ]
 
 
@@ -228,6 +228,7 @@ export default function Home() {
               const pictogram = GHS_PICTOGRAMS.find(p => p.value === value);
               return pictogram ? (
                 <img
+                  className="w-10 h-10"
                   key={value}
                   src={pictogram.icon}
                   alt={pictogram.label}
@@ -793,7 +794,7 @@ export default function Home() {
                     const pictogram = GHS_PICTOGRAMS.find(p => p.value === value)
                     return pictogram ? (
                       <img
-                        key={icon}
+                        key={pictogram.icon}
                         src={pictogram.icon}
                         alt={pictogram.label}
                         title={pictogram.label}
