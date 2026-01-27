@@ -141,7 +141,7 @@ export default function Home() {
       unit: chemical.unit || '',
       percent_full: chemical.percent_full || null,
       location: chemical.location || '',
-      expiration_date: chemical.expiration_date ? dayjs(chemical.expiration_date).format("MMM, D, YYYY") : null,
+      expiration_date: chemical.expiration_date ? dayjs(chemical.expiration_date) : null,
       manufacturer_information: chemical.manufacturer_information || '',
       lot_number: chemical.lot_number || '',
       notes: chemical.notes || ''
@@ -266,6 +266,7 @@ export default function Home() {
       title: "Concentration",
       dataIndex: "concentration",
       key: "concentration",
+      width: 100,
       sorter: (a, b) => a.concentration - b.concentration
     },
     {
@@ -294,17 +295,6 @@ export default function Home() {
       dataIndex: "manufacturer_information",
       key: "manufacturer_information",
       sorter: (a, b) => a.manufacturer_information.localeCompare(b.manufacturer_information)
-    },
-    {
-      title: "Lot Number",
-      dataIndex: "lot_number",
-      key: "lot_number",
-      sorter: (a, b) => a.lot_number.localeCompare(b.lot_number)
-    },
-    {
-      title: "Notes",
-      dataIndex: "notes",
-      key: "notes",
     },
     {
       title: "Actions",
@@ -693,16 +683,172 @@ export default function Home() {
         </div>
       </>
     ) : (
-      <Table
-        dataSource={chemicals}
-        columns={columns}
-        rowKey="id"
-        pagination={{ pageSize: 10 }}
-        onRow={(record) => ({
-          onClick: () => setModalChemical(record),
-          style: { cursor: 'pointer' }
-        })}
-      />
+      <div style={{overflowX: "auto", width: "100%"}}>
+        <Table
+          dataSource={chemicals}
+          columns={columns}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <div style={{ 
+                padding: '16px 24px',
+                background: 'linear-gradient(135deg, #f9f5fa 0%, #f0f2f8 100%)',
+                borderRadius: '8px',
+                margin: '8px 0'
+              }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '16px',
+                  marginBottom: record.notes ? '16px' : '0'
+                }}>
+                  {record.lot_number && (
+                    <div>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6d7ec2', 
+                        fontWeight: '600',
+                        marginBottom: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Lot Number
+                      </p>
+                      <p style={{ margin: 0, color: '#333' }}>
+                        {record.lot_number}
+                      </p>
+                    </div>
+                  )}
+                  
+                  
+                  <div>
+                    <p style={{ 
+                      fontSize: '12px', 
+                      color: '#6d7ec2', 
+                      fontWeight: '600',
+                      marginBottom: '4px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Created
+                    </p>
+                    <p style={{ margin: 0, color: '#333' }}>
+                      {new Date(record.created_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                  
+                  {record.updated_at ? 
+                    <div>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6d7ec2', 
+                        fontWeight: '600',
+                        marginBottom: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Last Updated
+                      </p>
+                      <p style={{ margin: 0, color: '#333' }}>
+                        {new Date(record.updated_at).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div> : 
+                    <div>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6d7ec2', 
+                        fontWeight: '600',
+                        marginBottom: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Last Updated
+                      </p>
+                      <p style={{ margin: 0, color: '#333' }}>
+                        {"—"}
+                      </p>
+                    </div>
+                  }
+                </div>
+
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '16px',
+                  marginBottom: record.notes ? '16px' : '0'
+                }}>
+                  {record.notes && (
+                    <div style={{ 
+                      paddingTop: '16px',
+                      borderTop: '1px solid rgba(109, 126, 194, 0.2)'
+                    }}>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6d7ec2', 
+                        fontWeight: '600',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Notes
+                      </p>
+                      <p style={{ 
+                        margin: 0, 
+                        color: '#555',
+                        fontStyle: 'italic',
+                        lineHeight: '1.5'
+                      }}>
+                        {record.notes}
+                      </p>
+                    </div>
+                  )}
+
+                  {record.signal_word &&(
+                    <div style={{ 
+                      paddingTop: '16px',
+                      borderTop: '1px solid rgba(109, 126, 194, 0.2)'
+                    }}>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6d7ec2', 
+                        fontWeight: '600',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Signal Word
+                      </p>
+                      <p style={{ 
+                        margin: 0, 
+                        color: '#ea4310',
+                        fontWeight: 'bold',
+                        lineHeight: '1.5'
+                      }}>
+                        {record.signal_word}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ),
+            rowExpandable: (record) => record.notes || record.lot_number || record.created_at || record.updated_at,
+          }}
+          size="small"
+        />
+      </div>
     )}
 
     <Modal
