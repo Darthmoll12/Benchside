@@ -1,12 +1,19 @@
 'use client'
 
-import { Button, Card, Modal, Form, Input, InputNumber, DatePicker, Select, Table, Segmented} from 'antd'
-import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { ExperimentOutlined } from '@ant-design/icons'
-import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
+
+import ChemicalForm from '@/components/ChemicalForm'
+import ChemicalModal from '@/components/ChemicalModal'
+import { getChemicalColumns } from '@/lib/tableColumns'
+
+import { Button, Card, Table, Segmented, Form, Input} from 'antd'
+import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons'
+
 const  { TextArea } = Input
+
+
 
 export default function Home() {
   const [chemicals, setChemicals] = useState([])
@@ -17,16 +24,8 @@ export default function Home() {
   const [form] = Form.useForm()
   const [viewMode, setViewMode] = useState('cards')
 
-  const GHS_PICTOGRAMS = [
-  { value: 'flame', label: 'Flammable', icon: '/ghs/flame.png' },
-  { value: 'corrosion', label: 'Corrosive', icon: '/ghs/corrosion.png' },
-  { value: 'skull', label: 'Acute Toxicity', icon: '/ghs/skull.png' },
-  { value: 'health', label: 'Health Hazard', icon: '/ghs/health.png' },
-  { value: 'exclamation', label: 'Irritant', icon: '/ghs/exclamation.png' },
-  { value: 'environment', label: 'Environmental Hazard', icon: '/ghs/environment.png' },
-  { value: 'gas', label: 'Gas Under Pressure', icon: '/ghs/gas.png' },
-  { value: 'oxidizer', label: 'Oxidizer', icon: '/ghs/oxidizer.png' }
-]
+  // const renderWithDefault = (val) => val ?? "—"
+  const columns = getChemicalColumns(startEdit, deleteChemical)
 
 
 
@@ -191,140 +190,7 @@ export default function Home() {
         alert('Error updating chemical. Check console for details.')
       }
     }
-
-  const renderWithDefault = (val) => val ?? "—"
-
-  const columns = [
-    {
-      title: "Chemical Name",
-      dataIndex: "chemical_name",
-      key: "chemical_name",
-      sorter: (a, b) => a.chemical_name.localeCompare(b.chemical_name)
-    },
-    {
-      title: "CAS Number",
-      dataIndex: "cas_number",
-      key: "cas_number",
-      sorter: (a, b) => a.cas_number.localeCompare(b.cas_number)
-    },
-    {
-      title: "Physical State",
-      dataIndex: "physical_state",
-      key: "physical_state",
-    },
-    {
-      title: "GHS Pictogram",
-      dataIndex: "ghs_pictograms",
-      key: "ghs_pictograms",
-      title: 'Pictograms',
-      render: (ghs_pictograms) => {
-        const list = Array.isArray(ghs_pictograms) ? ghs_pictograms : [];
-
-        if (!list || list.length === 0) {
-          return <span>—</span>
-        }
-
-        return (
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {list.slice(0, 3).map((value) => {
-              const pictogram = GHS_PICTOGRAMS.find(p => p.value === value);
-              return pictogram ? (
-                <img
-                  className="w-10 h-10"
-                  key={value}
-                  src={pictogram.icon}
-                  alt={pictogram.label}
-                  style={{ width: '20px', height: '20px' }}
-                />
-              ) : null;
-            })}
-            {list.length > 3 && (
-              <span style={{ fontSize: '11px', color: '#999' }}>
-                +{list.length - 3}
-              </span>
-            )}
-          </div>
-        );
-      }
-    },
-    {
-      title: "Container Size",
-      dataIndex: "container_size",
-      key: "container_size",
-      sorter: (a, b) => a.container_size - b.container_size
-    },
-    {
-      title: "Unit",
-      dataIndex: "unit",
-      key: "unit"
-    },
-    {
-      title: "Percent Full",
-      dataIndex: "percent_full",
-      key: "percent_full",
-      sorter: (a, b) => a.percent_full - b.percent_full,
-      render: renderWithDefault
-    },
-     {
-      title: "Concentration",
-      dataIndex: "concentration",
-      key: "concentration",
-      width: 100,
-      sorter: (a, b) => a.concentration - b.concentration,
-      render: renderWithDefault
-    },
-    {
-      title: "Concentration Units",
-      dataIndex: "concentration_unit",
-      key: "concentration_unit",
-      render: renderWithDefault
-    },
-    {
-      title: "Location",
-      dataIndex: "location",
-      key: "location",
-      sorter: (a, b) => a.location.localeCompare(b.location)
-    },
-    {
-      title: "Expiration Date",
-      dataIndex: "expiration_date",
-      key: "expiration_date",
-      sorter: (a, b) => {
-        if (!a.expiration_date) return 1  // Put nulls at the end
-        if (!b.expiration_date) return -1
-        return a.expiration_date.localeCompare(b.expiration_date)
-      },
-      render: renderWithDefault
-    },
-    {
-      title: "Manufacturer",
-      dataIndex: "manufacturer_information",
-      key: "manufacturer_information",
-      sorter: (a, b) => a.manufacturer_information.localeCompare(b.manufacturer_information)
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => (
-        <div style={{ display: 'flex', gap: '8px' }}>
-        <Button 
-        type="primary" 
-        size="small"
-        onClick={() => startEdit(record)}
-        >
-        Edit
-        </Button>
-        <Button 
-        danger 
-        size="small"
-        onClick={() => deleteChemical(record.id)}
-        >
-        Delete
-        </Button>
-        </div>
-      )
-    }
-  ]
+  
 
 
   if (loading) {
@@ -350,289 +216,46 @@ export default function Home() {
             ]}
           />
           
-          <Button 
-            onClick={() => {
-              setShowForm(!showForm)
-              setEditingID(null)
-              form.setFieldsValue({
-                chemical_name: '',
-                cas_number: '',
-                amount: '',
-                unit: '',
-                location: '',
-                expiration_date: '',
-                manufacturer_information: '',
-                lot_number: '',
-                notes: ''
-              })
-            }}
-            type='primary'
-          >
-            {editingID ? 'Cancel Edit' : (showForm ? 'Cancel' : 'Add Chemical')}
-          </Button>
+          {!showForm && (
+            <Button 
+              onClick={() => {
+                setShowForm(!showForm)
+                setEditingID(null)
+                form.setFieldsValue({
+                  chemical_name: '',
+                  cas_number: '',
+                  amount: '',
+                  unit: '',
+                  location: '',
+                  expiration_date: '',
+                  manufacturer_information: '',
+                  lot_number: '',
+                  notes: ''
+                })
+              }}
+              type='primary'
+            >
+              Add Chemical
+            </Button>
+          )}
         </div>
       </div>
   
 
 
     {showForm && (
-      <Form
+      <ChemicalForm
         form={form}
+        editingID={editingID}
         onFinish={editingID ? editChemicals : addChemical}
-        layout="vertical"
-        style={{
-          backgroundColor: '#ffffff',
-          boxShadow: '0 10px 40px rgba(109, 126, 194, 0.2)',
-          padding: '40px',
-          borderRadius: '12px',
-          marginBottom: '48px'
+        onCancel={() => {
+          setShowForm(false)
+          setEditingID(null)
+          form.resetFields()
         }}
-      >
-        <div className="grid grid-cols-2 gap-4">
-          <Form.Item
-            label="Chemical Name"
-            name="chemical_name"
-            hasFeedback
-            rules={[{ required: true, message: 'Please enter a chemical name' }]}
-          >
-            <Input
-              placeholder="e.g., Sodium Chloride"
-              style={{ borderColor: '#6d7ec2' }}
-              prefix={<ExperimentOutlined />}
-            />
-          </Form.Item>
+      />
+    )}
 
-          <Form.Item
-            label="CAS Number"
-            name="cas_number"
-            tooltip="Chemical Abstracts Service registry number (e.g., 64-17-5)"
-            rules={[{ required: true, message: "Please enter a CAS Number"}]}
-            hasFeedback
-          >
-            <Input
-              placeholder="Enter your chemical's CAS number if applicable"
-              style={{ borderColor: '#6d7ec2' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Physical State"
-            name="physical_state"
-            tooltip="The state of matter of the chemical"
-            rules={[{ required: true, message: "Please enter a state of matter"}]}
-            hasFeedback
-          >
-            <Select
-              placeholder="Enter the chemical's physical state"
-              style={{ borderColor: '#6d7ec2' }}
-            >
-              <Select.Option value="solid">Solid</Select.Option>
-              <Select.Option value="liquid">Liquid</Select.Option>
-              <Select.Option value="gas">Gas</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="GHS Pictogram"
-            name="ghs_pictograms"
-            tootltip="GHS pictogram can often be found somewhere on the chemical container's label"
-            hasFeedback
-          >
-            <Select
-              mode="multiple"
-              placeholder="Select applicable hazards"
-              style={{ borderColor: '#6d7ec2' }}
-              options={GHS_PICTOGRAMS.map(opt => ({
-                value: opt.value,
-                label: (
-                  <div className="flex items-center gap-2">
-                    <img src={opt.icon} alt={opt.label} className="w-5 h-5" />
-                    <span>{opt.label}</span>
-                  </div>
-                )
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Container Size"
-            name="container_size"
-            tooltip="Numerical quantity of chemical as labeled on the bottle/container (without units)"
-            rules={[{ required: true, message: "Please enter a container size" }]}
-            hasFeedback
-          >
-            <InputNumber
-              placeholder="Enter a quantity"
-              min={0.0}
-              step={0.1}
-              style={{
-                width: '100%',
-                borderColor: '#6d7ec2'
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Unit"
-            name="unit"
-            rules={[{ required: true, message: "Please enter an unit" }]}
-            hasFeedback
-          >
-            <Select
-              placeholder="Select a unit (g, mL, etc)"
-              style={{ borderColor: '#6d7ec2' }}
-            >
-              <Select.Option value="g">g (grams)</Select.Option>
-              <Select.Option value="mg">mg (milligrams)</Select.Option>
-              <Select.Option value="mL">mL (milliliters)</Select.Option>
-              <Select.Option value="L">L (liters)</Select.Option>
-              <Select.Option value="mol">mol (moles)</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Percent Full"
-            name="percent_full"
-            hasFeedback
-          >
-            <InputNumber
-              placeholder="Enter a number (without % sign)"
-              min={0}
-              step={1}
-              style={{
-                width: '100%',
-                borderColor: '#6d7ec2'
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Concentration"
-            name="concentration"
-            tooltip="If in aqueous solution, enter the concentration as displayed on the container"
-            hasFeedback
-          >
-            <InputNumber
-              placeholder="Enter a number"
-              min={0}
-              step={1}
-              style={{
-                width: '100%',
-                borderColor: '#6d7ec2'
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            shouldUpdate={(prev, curr) =>
-              prev.concentration !== curr.concentration
-            }
-          >
-            {({ getFieldValue }) =>
-              getFieldValue('concentration') ? (
-                <Form.Item
-                  label="Concentration Unit"
-                  name="concentration_unit"
-                  rules={[{ required: true, message: 'Select a unit' }]}
-                >
-                  <Select
-                    placeholder="Select a unit (M, g/mL, etc.)"
-                    style={{ borderColor: '#6d7ec2' }}
-                  >
-                    <Select.Option value="M">M (Molar)</Select.Option>
-                    <Select.Option value="mM">mM (millimolar)</Select.Option>
-                    <Select.Option value="μM">μM (micromolar)</Select.Option>
-                    <Select.Option value="g/mL">g/mL (grams per milliliters)</Select.Option>
-                    <Select.Option value="mg/ml">mg/ml (milligrams per millilters)</Select.Option>
-                    <Select.Option value="%w/w">% w/w (mass solute/total mass of solution)</Select.Option>
-                    <Select.Option value="%v/v">% v/v (volume solute/total volume of solution)</Select.Option>
-                    <Select.Option value="ppm">ppm (parts per million)</Select.Option>
-                    <Select.Option value="ppb">ppb (parts per billion)</Select.Option>
-                  </Select>
-                </Form.Item>
-              ) : null
-            }
-          </Form.Item>
-
-          <Form.Item
-            label="Location"
-            name="location"
-            rules={[{ required: true, message: 'Please enter a location' }]}
-            tooltip="Physical storage location (cabinet, shelf, room number)"
-            hasFeedback
-          >
-            <Input
-              placeholder="Enter room number"
-              style={{ borderColor: '#6d7ec2' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Expiration Date"
-            name="expiration_date"
-            tooltip="Date when the chemical expires or should be disposed of"
-            hasFeedback
-          >
-            <DatePicker
-              style={{
-                width: '100%',
-                borderColor: '#6d7ec2'
-              }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Manufacturer"
-            name="manufacturer_information"
-            tooltip="Company that produced or supplied this chemical"
-            rules={[{ required: true, message: "Please enter Manufacturer Information"}]}
-            hasFeedback
-          >
-            <Input
-              placeholder="Enter your chemical's manufacturer"
-              style={{ borderColor: '#6d7ec2' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Lot Number"
-            name="lot_number"
-            tooltip="Batch or lot number from the manufacturer for quality tracking"
-            hasFeedback
-          >
-            <Input
-              placeholder="Enter lot number if applicable"
-              style={{ borderColor: '#6d7ec2' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Notes"
-            name="notes"
-            className="col-span-2"
-            tooltip="Additional information such as hazards, storage conditions, or special handling requirements"
-            hasFeedback
-          >
-            <TextArea
-              rows={3}
-              placeholder="Enter any additional notes"
-              style={{ borderColor: '#6d7ec2' }}
-            />
-          </Form.Item>
-        </div>
-
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="w-full sm:w-auto"
-          >
-            {editingID ? 'Update Chemical' : 'Save Chemical'}
-          </Button>
-        </Form.Item>
-      </Form>
-    )
-    }
     
     {chemicals.length === 0 ? (
       <p>No chemicals yet. Add some using the button above!</p>
@@ -812,118 +435,10 @@ export default function Home() {
       </div>
     )}
 
-    <Modal
-      open={modalChemical !== null}
-      onCancel={() => setModalChemical(null)}
-      footer={null}
-      width={600}
-    >
-      {modalChemical && (
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold">
-              {modalChemical.chemical_name}
-            </h2>
-            <p className="text-sm text-gray-500">
-              CAS: {modalChemical.cas_number || '—'}
-            </p>
-          </div>
-
-          {modalChemical.physical_state && (
-            <div>
-              <p className="text-gray-500 text-sm">Physical State</p>
-              <p className="font-medium capitalize">
-                {modalChemical.physical_state}
-              </p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-            <div>
-              <p className="text-gray-500">Container Size</p>
-              <p className="font-medium">
-                {modalChemical.container_size}{modalChemical.unit}
-              </p>
-            </div>
-
-            {modalChemical.concentration && modalChemical.concentration_unit && (
-              <div>
-                <p className="text-gray-500 text-sm">Concentration</p>
-                <p className="font-medium">
-                  {modalChemical.concentration}{modalChemical.concentration_unit}
-                </p>
-              </div>
-            )}
-
-            <div>
-              <p className="text-gray-500">Percent Full</p>
-              <p className="font-medium">
-                {modalChemical.percent_full ?? '—'}%
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500">Location</p>
-              <p className="font-medium">
-                {modalChemical.location}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500">Expiration Date</p>
-              <p className="font-medium">
-                {modalChemical.expiration_date
-                  ? dayjs(modalChemical.expiration_date).format("MMM D, YYYY") : '—'}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500">Manufacturer</p>
-              <p className="font-medium">
-                {modalChemical.manufacturer_information || '—'}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500">Lot Number</p>
-              <p className="font-medium">
-                {modalChemical.lot_number || '—'}
-              </p>
-            </div>
-          </div>
-
-          {Array.isArray(modalChemical.ghs_pictograms) &&
-            modalChemical.ghs_pictograms?.length > 0 && (
-              <div>
-                <p className="text-gray-500 text-sm mb-2">GHS Pictograms</p>
-                <div className="flex gap-3">
-                  {modalChemical.ghs_pictograms.map((value) => {
-                    const pictogram = GHS_PICTOGRAMS.find(p => p.value === value)
-                    return pictogram ? (
-                      <img
-                        key={pictogram.icon}
-                        src={pictogram.icon}
-                        alt={pictogram.label}
-                        title={pictogram.label}
-                        className="w-10 h-10"
-                      />
-                    ) : null
-                  })}
-                </div>
-              </div>
-            )}
-
-          {modalChemical.notes && (
-            <div className="pt-3 border-t">
-              <p className="text-sm text-gray-500 mb-1">Notes</p>
-              <p className="text-sm italic text-gray-700">
-                {modalChemical.notes}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-    </Modal>
+    <ChemicalModal
+      chemical={modalChemical}
+      onClose={() => setModalChemical(null)}
+    />
   </div>
   )}
 
