@@ -192,7 +192,8 @@ export default function Home() {
       }
     }
 
-  
+  const renderWithDefault = (val) => val ?? "—"
+
   const columns = [
     {
       title: "Chemical Name",
@@ -218,6 +219,10 @@ export default function Home() {
       title: 'Pictograms',
       render: (ghs_pictograms) => {
         const list = Array.isArray(ghs_pictograms) ? ghs_pictograms : [];
+
+        if (!list || list.length === 0) {
+          return <span>—</span>
+        }
 
         return (
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -257,19 +262,22 @@ export default function Home() {
       title: "Percent Full",
       dataIndex: "percent_full",
       key: "percent_full",
-      sorter: (a, b) => a.percent_full - b.percent_full
+      sorter: (a, b) => a.percent_full - b.percent_full,
+      render: renderWithDefault
     },
      {
       title: "Concentration",
       dataIndex: "concentration",
       key: "concentration",
       width: 100,
-      sorter: (a, b) => a.concentration - b.concentration
+      sorter: (a, b) => a.concentration - b.concentration,
+      render: renderWithDefault
     },
     {
       title: "Concentration Units",
       dataIndex: "concentration_unit",
       key: "concentration_unit",
+      render: renderWithDefault
     },
     {
       title: "Location",
@@ -285,7 +293,8 @@ export default function Home() {
         if (!a.expiration_date) return 1  // Put nulls at the end
         if (!b.expiration_date) return -1
         return a.expiration_date.localeCompare(b.expiration_date)
-      }
+      },
+      render: renderWithDefault
     },
     {
       title: "Manufacturer",
@@ -419,7 +428,7 @@ export default function Home() {
             >
               <Select.Option value="solid">Solid</Select.Option>
               <Select.Option value="liquid">Liquid</Select.Option>
-              <Select.Option value="gas">gas</Select.Option>
+              <Select.Option value="gas">Gas</Select.Option>
             </Select>
           </Form.Item>
 
@@ -719,9 +728,7 @@ export default function Home() {
                       {new Date(record.created_at).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric', 
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric'
                       })}
                     </p>
                   </div>
@@ -742,9 +749,7 @@ export default function Home() {
                         {new Date(record.updated_at).toLocaleDateString('en-US', { 
                           month: 'short', 
                           day: 'numeric', 
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                          year: 'numeric'
                         })}
                       </p>
                     </div> : 
@@ -868,7 +873,7 @@ export default function Home() {
               <p className="text-gray-500">Expiration Date</p>
               <p className="font-medium">
                 {modalChemical.expiration_date
-                  ? dayjs(modalChemical.expiration_date).format("MMM, D, YYYY") : '—'}
+                  ? dayjs(modalChemical.expiration_date).format("MMM D, YYYY") : '—'}
               </p>
             </div>
 
