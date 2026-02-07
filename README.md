@@ -16,3 +16,16 @@ The first version of Benchside includes a simple dashboard for looking up and tr
 
 ### What Benchside v1 does not include.
 Benchside version 1 does not yet include full regulatory compliance management, advanced data analytics/AI integration, automatic purchasing, nor electronic lab notebook functionality. Benchside v1 is not meant to be a full laboratory information management system (LIMS). However, future versions of Benchside may contain many of the aforementioned features after further product development/iteration, giuded by user validation and feedback.
+
+
+## Approach
+
+BenchSide approaches this problem with one focus in mind: Elegant Simplicity. There are two factors to this focus:
+
+### Elegance
+
+BenchSide strives to make the chemical inventorying process an elegant and user-friendly process that is not only functional but also enjoyable to use. This is achieved by making the inventorying process as seamless as possible by including such features as: spreadsheet/csv file upload and download features to reduce time to transfer between inventory systems, SDS integration with chemicals for easy safety infomation lookup, and tagging low-stock chemicals for order-form integration.
+
+### Simplicity
+
+BenchSide's UI is purposefully designed to be minimal and easy to navigate. Chemicals can be viewed in both card form and able form, each with expandables that reveal more information on each chemical. A minimal form to add new chemicals to the list provides for straightforward entry without bottlenecking the process: Only certain fields are required, and ones that are readily available from chemical bottles. This allows chemical entries to be made in a timely manner in the event that additional qualifiers are not accessible.
