@@ -28,4 +28,4 @@ BenchSide strives to make the chemical inventorying process an elegant and user-
 
 ### Simplicity
 
-BenchSide's UI is purposefully designed to be minimal and easy to navigate. Chemicals can be viewed in both card form and able form, each with expandables that reveal more information on each chemical. A minimal form to add new chemicals to the list provides for straightforward entry without bottlenecking the process: Only certain fields are required, and ones that are readily available from chemical bottles. This allows chemical entries to be made in a timely manner in the event that additional qualifiers are not accessible.
+BenchSide's UI is purposefully designed to be minimal and easy to navigate. Chemicals can be viewed in both card form and table form, each with expandables that reveal more information on each chemical. A minimal form to add new chemicals to the list provides for straightforward entry without bottlenecking the process: Only certain fields are required, and ones that are readily available from chemical bottles. This allows chemical entries to be made in a timely manner in the event that additional qualifiers are not accessible.
