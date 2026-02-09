@@ -29,3 +29,30 @@ BenchSide strives to make the chemical inventorying process an elegant and user-
 ### Simplicity
 
 BenchSide's UI is purposefully designed to be minimal and easy to navigate. Chemicals can be viewed in both card form and table form, each with expandables that reveal more information on each chemical. A minimal form to add new chemicals to the list provides for straightforward entry without bottlenecking the process: Only certain fields are required, and ones that are readily available from chemical bottles. This allows chemical entries to be made in a timely manner in the event that additional qualifiers are not accessible.
+
+
+## Project Structure
+
+### Src Folder
+
+#### /app
+The /app folder contains that primary files that describe the layout of the webpage and actually run the page itself. Here you can find global.css, layout.js, and page.js, which is the main file for the project.
+
+#### /components
+This folder contains Javascript and Ant Design components that can be reused when necessary. For instance, the ChemicalForm.js component file describes the structure and layout of the "Add Chemical" form. The ChemicalForm component is then imported and called directly within the page.js file.
+
+#### /lib
+The /lib folder contains any global constants needed to perform functions across the project. For instance, the constants.js file contains a constant that houses structured information on GHS pictograms. This constant is imported to page.js so other functions can draw information from it.
+
+
+### Public Folder
+The public folder contains any files that house information to be publicly displayed on the webpage. This primarily includes .svg files for icons, logos, etc. 
+
+#### /ghs
+This folder houses .png files of each pictogram from the Globally Harmonized System of chemical classification. This allows users to select from images of the actual pictograms rather than from text descriptions.
+
+
+## Future Work
+BenchSide is designed to be simple and easy to use. The first versions of this application will only include what is absolutely necessary. 
+
+However, future work may include the addition of AI APIs to help automatically identify chemicals that need to be ordered, suggest reactants/solvents to use for a certain desired product, and more. These features could be very useful once BenchSide is already being used and validated by a significant number of users.
