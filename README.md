@@ -36,7 +36,7 @@ BenchSide's UI is purposefully designed to be minimal and easy to navigate. Chem
 ### Src Folder
 
 #### /app
-The /app folder contains that primary files that describe the layout of the webpage and actually run the page itself. Here you can find global.css, layout.js, and page.js, which is the main file for the project.
+The /app folder contains the primary files that describe the layout of the webpage and actually run the page itself. Here you can find global.css, layout.js, and page.js, which is the main file for the project.
 
 #### /components
 This folder contains Javascript and Ant Design components that can be reused when necessary. For instance, the ChemicalForm.js component file describes the structure and layout of the "Add Chemical" form. The ChemicalForm component is then imported and called directly within the page.js file.
