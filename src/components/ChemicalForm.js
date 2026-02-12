@@ -1,6 +1,7 @@
 'use client'
 
 import keyDownHandler from './keyDownHandler'
+import lotInputHandler from './lotInputHandler'
 import { Form, Input, Button, Select, InputNumber, DatePicker } from 'antd'
 import { ExperimentOutlined } from '@ant-design/icons'
 import { GHS_PICTOGRAMS } from '@/lib/constants'
@@ -44,14 +45,32 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
                 label="CAS Number"
                 name="cas_number"
                 tooltip="Chemical Abstracts Service registry number (e.g., 64-17-5)"
-                rules={[{ required: true, message: "Please enter a CAS Number"}]}
+                rules={[{ 
+                  required: true, 
+                  validator: (_, value) => {
+                    const digitsOnly = value.replace(/[^0-9]/g, '')
+                    if (digitsOnly.length < 5) {
+                      return Promise.reject( new Error('CAS number must have at least 5 digits'))
+                    }
+                    return Promise.resolve()
+                  }
+                }]}
                 hasFeedback
               >
-                <InputNumber
+                <Input
                   placeholder="Enter your chemical's CAS number if applicable"
-                  min={0}
-                  step={0.1}
-                  precision={2}
+                  minLength={5}
+                  onKeyDown={keyDownHandler}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, '')
+                    if (value.length > 10) {
+                      value = value.slice(0, 10)
+                    }
+                    if (value.length >= 5) {
+                      value = value.slice(0, -3) + '-' + value.slice(-3, -1) + '-' + value.slice(-1)
+                    }
+                    form.setFieldValue('cas_number', value)
+                  }}
                   style={{ borderColor: '#6d7ec2', width: '100%' }}
                 />
               </Form.Item>
@@ -77,6 +96,7 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
                 label="GHS Pictogram"
                 name="ghs_pictograms"
                 tooltip="GHS pictogram can often be found somewhere on the chemical container's label"
+                rules={[{ required: true, message: "Please select applicable GHS pictograms"}]}
                 hasFeedback
               >
                 <Select
@@ -104,11 +124,11 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
               >
                 <InputNumber
                   placeholder="Enter a quantity"
-                  min={0.0}
-                  max={10000}
+                  min={0.1}
                   step={0.1}
                   precision={2}
                   onKeyDown={keyDownHandler}
+                  maxLength={6}
                   style={{
                     width: '100%',
                     borderColor: '#6d7ec2'
@@ -143,8 +163,8 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
               >
                 <InputNumber
                   placeholder="Enter room number"
-                  min={0}
-                  max={10000}
+                  min={1}
+                  maxLength={6}
                   onKeyDown={keyDownHandler}
                   style={{ borderColor: '#6d7ec2', width: '100%' }}
                 />
@@ -177,7 +197,7 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
               >
                 <InputNumber
                   placeholder="Enter a number (without % sign)"
-                  min={0}
+                  min={1}
                   max={100}
                   step={1}
                   precision={2}
@@ -197,8 +217,8 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
               >
                 <InputNumber
                   placeholder="Enter a number"
-                  min={0}
-                  max={10000}
+                  min={1}
+                  maxLength={6}
                   step={0.1}
                   precision={2}
                   onKeyDown={keyDownHandler}
@@ -231,7 +251,8 @@ export default function ChemicalForm({ form, editingID, onFinish, onCancel}) {
               >
                 <Input
                   placeholder="Enter lot number if applicable"
-                  style={{ borderColor: '#6d7ec2' }}
+                  style={{ borderColor: '#6d7ec2', textTransform: 'uppercase' }}
+                  onKeyDown={lotInputHandler}
                 />
               </Form.Item>
 

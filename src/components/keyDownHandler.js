@@ -11,7 +11,7 @@ export default function keyDownHandler(e) {
     ) {
         return
     }
-    if (/[a-zA-Z!@#$%^&*()_+=[\]{};':"\\|,<>/?]/.test(e.key)) {
+    if (/[a-zA-Z!@#$%^&*()_+=[\]{};':"\\|,<>/?-]/.test(e.key)) {
          e.preventDefault()
     }
 }
